@@ -16,7 +16,8 @@ use bevy::{
     log,
     prelude::{Entity, EventReader, Query, Resource, Time},
     time::Real,
-    window::{CursorMoved, ReceivedCharacter, RequestRedraw},
+    utils::hashbrown::Equivalent,
+    window::{CursorMoved, RequestRedraw},
 };
 use std::marker::PhantomData;
 
@@ -27,7 +28,7 @@ pub struct InputEvents<'w, 's> {
     pub ev_cursor: EventReader<'w, 's, CursorMoved>,
     pub ev_mouse_button_input: EventReader<'w, 's, MouseButtonInput>,
     pub ev_mouse_wheel: EventReader<'w, 's, MouseWheel>,
-    pub ev_received_character: EventReader<'w, 's, ReceivedCharacter>,
+    pub ev_received_character: EventReader<'w, 's, KeyboardInput>,
     pub ev_keyboard_input: EventReader<'w, 's, KeyboardInput>,
     pub ev_touch: EventReader<'w, 's, TouchInput>,
 }
@@ -245,11 +246,11 @@ pub fn process_input_system(
                 continue;
             };
 
-            if event.char.matches(char::is_control).count() == 0 {
+            if event.logical_key.equivalent(&Key::Control) {
                 window_context
                     .egui_input
                     .events
-                    .push(egui::Event::Text(event.char.to_string()));
+                    .push(egui::Event::Text(format!("{:?}", event.key_code)));
             }
         }
     }
